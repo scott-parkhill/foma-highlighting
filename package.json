@@ -1,0 +1,48 @@
+{
+    "name": "Foma Highlighting",
+    "displayName": "Foma Highlighting",
+    "description": "Syntax highlighting for .lexc and .foma files.",
+    "version": "0.0.1",
+    "license": "GPLv3",
+    "engines": {
+        "vscode": "^1.71.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/scott-parkhill/foma-highlighting.git"
+    },
+    "publisher": "scott-parkhill",
+    "categories": [
+        "Programming Languages"
+    ],
+    "contributes": {
+        "languages": [
+            {
+                "id": "lexc",
+                "extensions": [
+                    ".lexc"
+                ],
+                "configuration": "./language-configuration.json"
+            },
+            {
+                "id": "foma",
+                "extensions": [
+                    ".foma"
+                ],
+                "configuration": "./language-configuration.json"
+            }
+        ],
+        "grammars": [
+            {
+                "language": "lexc",
+                "scopeName": "source.lexc",
+                "path": "./syntaxes/lexc.tmLanguage.json"
+            },
+            {
+                "language": "foma",
+                "scopeName": "source.foma",
+                "path": "./syntaxes/foma.tmLanguage.json"
+            }
+        ]
+    }
+}

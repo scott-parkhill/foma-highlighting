@@ -1,0 +1,255 @@
+{
+    "scopeName": "source.lexc",
+    "patterns": [
+        { "include": "#expression"}
+    ],
+    "repository": {
+
+        "expression": {
+            "patterns": [
+                { "include": "#comment-expression" },
+                { "include": "#lexicon-expression" },
+                { "include": "#multichar-symbols-expression" },
+                { "include": "#application-expression" },
+                { "include": "#transduction-expression" }
+            ]
+        },
+
+        "comment-expression": {
+            "match": "!!.*",
+            "name": "comment.line.double-exclamation-mark.lexc"
+        },
+
+        "keyword": {
+            "match": ".*",
+            "name": "keyword.other.lexc"
+        },
+
+        "lexicon-keyword": {
+            "match": "(LEXICON|Lexicon)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                }
+            }
+        },
+
+        "lexicon-name": {
+            "match": "\\w+",
+            "name": "entity.name.type.lexicon.lexc"
+        },
+
+        "lexicon-definition": {
+            "match": "^(LEXICON|Lexicon)\\s(\\w+)$",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#lexicon-keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#lexicon-name"}
+                    ]
+                }
+            }
+        },
+
+        "lexicon-statement": {
+            "match": "^(\\w+)\\s*;",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#lexicon-name" }
+                    ]
+                }
+            }
+        },
+
+        "lexicon-expression": {
+            "patterns": [
+                { "include": "#lexicon-definition" },
+                { "include": "#lexicon-statement" },
+                { "include": "#lexicon-keyword" }
+            ]
+        },
+
+        "symbol": {
+            "match": "[^@]+",
+            "name": "constant.other.multichar-symbol.lexc"
+        },
+
+        "flag-inner": {
+            "match": "[^@]+",
+            "name": "variable.other.flag-inner.lexc"
+        },
+
+        "flag": {
+            "name": "entity.name.tag",
+            "begin": "@",
+            "end": "@",
+            "patterns": [
+                { "include": "#flag-inner" }
+            ]
+        },
+
+        "multichar-symbols-keyword": {
+            "match": "(Multichar_Symbols)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                }
+            }
+        },
+
+        "multichar-symbols-definition": {
+            "match": "\\s*(\\S+)(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#flag" },
+                        { "include": "#symbol" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#multichar-symbols-definition" }
+                    ]
+                }
+            }
+
+
+        },
+
+        "multichar-symbols-expression": {
+            "match": "^(Multichar_Symbols)(.*)$",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#multichar-symbols-keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#multichar-symbols-definition" }
+                    ]
+                }
+            }
+        },
+
+        "string-literal": {
+            "match": ".*",
+            "name": "string.unquoted.lexc"
+        },
+
+        "placeholder-character": {
+            "match": "_",
+            "name": "entity.other.placeholder-character.lexc"
+        },
+
+        "application-expression": {
+            "match": "^([^:]+)\\s(\\S+)\\s*;$",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#string-literal" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#lexicon-name" }
+                    ]
+                }
+            }
+        },
+
+        "epsilon": {
+            "match": "0",
+            "name": "constant.language.epsilon.lexc"
+        },
+
+        "end-of-word": {
+            "match": "#",
+            "name": "constant.language.end-of-word.lexc"
+        },
+
+        "transduction-operator": {
+            "match": ":",
+            "name": "keyword.control.transduction-operator.lexc"
+        },
+
+        "transduction-term-left": {
+            "match": "([^@]+)?(@[^@]+@)?(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#symbol" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#flag" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#transduction-term-left" }
+                    ]
+                }
+            }
+        },
+
+        "transduction-term-right": {
+            "match": "(_)?([^_]+)(_)?",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#placeholder-character" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#epsilon" },
+                        { "include": "#string-literal" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#placeholder-character" }
+                    ]
+                }
+            }
+        },
+
+        "transduction-expression": {
+            "match": "^([^:]+)(:)(\\S+)\\s(\\S+)\\s*;$",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#transduction-term-left" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#transduction-operator" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#transduction-term-right" }
+                    ]
+                },
+                "4": {
+                    "patterns": [
+                        { "include": "#lexicon-name" },
+                        { "include": "#end-of-word"}
+                    ]
+                }
+            }
+        }
+    }
+}

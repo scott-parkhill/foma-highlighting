@@ -4,7 +4,6 @@
         { "include": "#expression"}
     ],
     "repository": {
-
         "expression": {
             "patterns": [
                 { "include": "#comment-expression" },
@@ -16,6 +15,7 @@
         },
 
         "comment-expression": {
+            "description": "Comments are left with !!",
             "match": "!!.*",
             "name": "comment.line.double-exclamation-mark.lexc"
         },
@@ -26,6 +26,7 @@
         },
 
         "lexicon-keyword": {
+            "description": "Defines LEXICON and Lexicon as valid keywords.",
             "match": "(LEXICON|Lexicon)",
             "captures": {
                 "1": {
@@ -37,11 +38,13 @@
         },
 
         "lexicon-name": {
+            "description": "The name of the lexicon",
             "match": "\\w+",
             "name": "entity.name.type.lexicon.lexc"
         },
 
         "lexicon-definition": {
+            "description": "Definition of a lexicon. Example: Lexicon Polarity",
             "match": "(LEXICON|Lexicon)\\s(\\w+)",
             "captures": {
                 "1": {
@@ -58,6 +61,7 @@
         },
 
         "lexicon-statement": {
+            "description": "Example use for a lexicon called Polarity: Polarity;",
             "match": "(\\w+)\\s*;",
             "captures": {
                 "1": {
@@ -69,6 +73,7 @@
         },
 
         "lexicon-expression": {
+            "description": "Lexicon expressions are used to define or use lexicons.",
             "patterns": [
                 { "include": "#lexicon-definition" },
                 { "include": "#lexicon-statement" },
@@ -76,17 +81,66 @@
             ]
         },
 
-        "symbol": {
-            "match": "[^@0]+",
+        "plus-sign": {
+            "match": "\\+",
+            "name": "keyword.control.plus-sign.lexc"
+        },
+
+        "symbol-text": {
+            "match": ".*",
             "name": "constant.other.multichar-symbol.lexc"
         },
 
+        "symbol-left": {
+            "description": "+TEXT",
+            "match": "(\\+)([^@0\\+]+)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#plus-sign" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#symbol-text" }
+                    ]
+                }
+            }
+        },
+
+        "symbol-right": {
+            "description": "TEXT+",
+            "match": "([^@0\\+]+)(\\+)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#symbol-text" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#plus-sign" }
+                    ]
+                }
+            }
+        },
+
+        "symbol": {
+            "description": "Symbols are either +TEXT or TEXT+",
+            "patterns": [
+                { "include": "#symbol-left" },
+                { "include": "#symbol-right" }
+            ]
+        },
+
         "flag-inner": {
+            "description": "The inner text of a diacritic flag, i.e. the TEXT in @TEXT@",
             "match": "[^@]+",
             "name": "variable.other.flag-inner.lexc"
         },
 
         "flag": {
+            "description": "A diacritic flag is of the form @TEXT@",
             "name": "entity.name.tag",
             "begin": "@",
             "end": "@",
@@ -96,6 +150,7 @@
         },
 
         "multichar-symbols-keyword": {
+            "description": "The keyword Multichar_Symbols",
             "match": "(Multichar_Symbols)",
             "captures": {
                 "1": {
@@ -107,6 +162,7 @@
         },
 
         "multichar-symbols-definition": {
+            "description": "Matches either a flag or a symbol, i.e. @TEXT@, +TEXT, TEXT+",
             "match": "\\s*(\\S+)(.*)",
             "captures": {
                 "1": {
@@ -124,6 +180,7 @@
         },
 
         "multichar-symbols-expression": {
+            "description": "Defines multicharacter symbols. Example: Multichar_Symbols @P.Sub1ex.ON@ +SG",
             "match": "(Multichar_Symbols)([^!!]*)(!!.*)?",
             "captures": {
                 "1": {
@@ -145,16 +202,19 @@
         },
 
         "string-literal": {
+            "description": "Matches any text passed to it and treats it as a string.",
             "match": ".*",
             "name": "string.unquoted.lexc"
         },
 
         "placeholder-character": {
+            "description": "Placeholder character for a space that replaces this character at runtime. I believe this is idiomatic.",
             "match": "_",
             "name": "entity.other.placeholder-character.lexc"
         },
 
         "application-expression": {
+            "description": "This is applying a word to a lexicon, i.e. doggy Plurality;",
             "match": "([^:]+)\\s(\\S+)\\s*;",
             "captures": {
                 "1": {
@@ -171,97 +231,79 @@
         },
 
         "epsilon": {
+            "description": "Epsilon, or the empty production.",
             "match": "0",
             "name": "constant.language.epsilon.lexc"
         },
 
         "end-of-word": {
+            "description": "End of word marker.",
             "match": "#",
             "name": "constant.language.end-of-word.lexc"
         },
 
-        "caret": {
+        "beginning-of-word": {
+            "description": "Beginnig of word marker.",
             "match": "\\^",
-            "name": "constant.language.caret.lexc"
+            "name": "constant.language.beginning-of-word.lexc"
         },
 
         "transduction-operator": {
+            "description": "The colon is used as the operator for creating an FST, i.e. c:d takes c and produces d.",
             "match": ":",
             "name": "keyword.control.transduction-operator.lexc"
         },
 
-        "transduction-term-left": {
-            "match": "([^@]+)?(@[^@]+@)?(.*)",
+        "term-with-placeholder": {
+            "description": "Captures: _TEXT, TEXT_, _TEXT_, TEXT",
+            "match": "(_)?([^@\\+_]+)(_)?",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#symbol" },
-                        { "include": "#epsilon" }
+                        { "include": "#placeholder-character" }
                     ]
                 },
                 "2": {
-                    "patterns": [
-                        { "include": "#flag" }
-                    ]
-                },
-                "3": {
-                    "patterns": [
-                        { "include": "#transduction-term-left" }
-                    ]
-                }
-            }
-        },
-
-        "transduction-term-right-body": {
-            "match": "([^@]+)?(@[^@]+@)?(.*)",
-            "captures": {
-                "1": {
                     "patterns": [
                         { "include": "#string-literal" }
                     ]
                 },
-                "2": {
-                    "patterns": [
-                        { "include": "#flag" }
-                    ]
-                },
                 "3": {
                     "patterns": [
-                        { "include": "#transduction-term-right-body"}
+                        { "include": "#placeholder-character" }
                     ]
                 }
             }
         },
 
-        "transduction-term-right": {
-            "match": "(_)?([^_]+)(_)?",
+        "transduction-term": {
+            "description": "Captures the following forms: +TEXT, TEXT+, @TEXT@, _TEXT, TEXT_, _TEXT_, TEXT",
+            "match": "(\\+[^@\\+]+|[^@\\+]+\\+|@\\S+@|_?[^@\\+]+_?)(.*)",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#placeholder-character" }
+                        { "include": "#epsilon" },
+                        { "include": "#beginning-of-word" },
+                        { "include": "#flag" },
+                        { "include": "#symbol" },
+                        { "include": "#term-with-placeholder" }
                     ]
                 },
                 "2": {
                     "patterns": [
-                        { "include": "#epsilon" },
-                        { "include": "#caret" },
-                        { "include": "#transduction-term-right-body" }
-                    ]
-                },
-                "3": {
-                    "patterns": [
-                        { "include": "#placeholder-character" }
+                        { "include": "#transduction-term" }
                     ]
                 }
             }
         },
 
         "transduction-expression": {
+            "description": "An example transduction expression is: CONJ+@P.Question.ON@@R.Negation.ON@:ina_ Subject;",
             "match": "([^:]+)(:)(\\S+)\\s+(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#transduction-term-left" }
+                        { "include": "#transduction-term" }
                     ]
                 },
                 "2": {
@@ -271,7 +313,7 @@
                 },
                 "3": {
                     "patterns": [
-                        { "include": "#transduction-term-right" }
+                        { "include": "#transduction-term" }
                     ]
                 },
                 "4": {

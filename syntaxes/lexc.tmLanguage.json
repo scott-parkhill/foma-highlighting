@@ -77,7 +77,7 @@
         },
 
         "symbol": {
-            "match": "[^@]+",
+            "match": "[^@0]+",
             "name": "constant.other.multichar-symbol.lexc"
         },
 
@@ -195,7 +195,8 @@
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#symbol" }
+                        { "include": "#symbol" },
+                        { "include": "#epsilon" }
                     ]
                 },
                 "2": {
@@ -256,7 +257,7 @@
         },
 
         "transduction-expression": {
-            "match": "([^:]+)(:)(\\S+)\\s(\\S+)\\s*;",
+            "match": "([^:]+)(:)(\\S+)\\s+(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [

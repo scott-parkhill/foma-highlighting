@@ -42,7 +42,7 @@
         },
 
         "lexicon-definition": {
-            "match": "^(LEXICON|Lexicon)\\s(\\w+)$",
+            "match": "(LEXICON|Lexicon)\\s(\\w+)",
             "captures": {
                 "1": {
                     "patterns": [
@@ -58,7 +58,7 @@
         },
 
         "lexicon-statement": {
-            "match": "^(\\w+)\\s*;",
+            "match": "(\\w+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -124,7 +124,7 @@
         },
 
         "multichar-symbols-expression": {
-            "match": "^(Multichar_Symbols)(.*)$",
+            "match": "(Multichar_Symbols)([^!!]*)(!!.*)?",
             "captures": {
                 "1": {
                     "patterns": [
@@ -134,6 +134,11 @@
                 "2": {
                     "patterns": [
                         { "include": "#multichar-symbols-definition" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#comment-expression" }
                     ]
                 }
             }
@@ -150,7 +155,7 @@
         },
 
         "application-expression": {
-            "match": "^([^:]+)\\s(\\S+)\\s*;$",
+            "match": "([^:]+)\\s(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -173,6 +178,11 @@
         "end-of-word": {
             "match": "#",
             "name": "constant.language.end-of-word.lexc"
+        },
+
+        "caret": {
+            "match": "\\^",
+            "name": "constant.language.caret.lexc"
         },
 
         "transduction-operator": {
@@ -201,6 +211,27 @@
             }
         },
 
+        "transduction-term-right-body": {
+            "match": "([^@]+)?(@[^@]+@)?(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#string-literal" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#flag" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#transduction-term-right-body"}
+                    ]
+                }
+            }
+        },
+
         "transduction-term-right": {
             "match": "(_)?([^_]+)(_)?",
             "captures": {
@@ -212,7 +243,8 @@
                 "2": {
                     "patterns": [
                         { "include": "#epsilon" },
-                        { "include": "#string-literal" }
+                        { "include": "#caret" },
+                        { "include": "#transduction-term-right-body" }
                     ]
                 },
                 "3": {
@@ -224,7 +256,7 @@
         },
 
         "transduction-expression": {
-            "match": "^([^:]+)(:)(\\S+)\\s(\\S+)\\s*;$",
+            "match": "([^:]+)(:)(\\S+)\\s(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [

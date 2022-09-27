@@ -77,7 +77,8 @@
             "patterns": [
                 { "include": "#lexicon-definition" },
                 { "include": "#lexicon-statement" },
-                { "include": "#lexicon-keyword" }
+                { "include": "#lexicon-keyword" },
+		{ "include": "#flag" }
             ]
         },
 

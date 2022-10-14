@@ -10,13 +10,15 @@
                 { "include": "#lexicon-expression" },
                 { "include": "#multichar-symbols-expression" },
                 { "include": "#application-expression" },
-                { "include": "#transduction-expression" }
+                { "include": "#transduction-expression" },
+                { "include": "#multichar-symbols-definition" }
+
             ]
         },
 
         "comment-expression": {
-            "description": "Comments are left with !!",
-            "match": "!!.*",
+            "description": "Comments are left with !",
+            "match": "\\s*!.*",
             "name": "comment.line.double-exclamation-mark.lexc"
         },
 
@@ -62,11 +64,12 @@
 
         "lexicon-statement": {
             "description": "Example use for a lexicon called Polarity: Polarity;",
-            "match": "(\\w+)\\s*;",
+            "match": "\\s*(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#lexicon-name" }
+                        { "include": "#lexicon-name" },
+                        { "include": "#end-of-word" }
                     ]
                 }
             }
@@ -78,7 +81,7 @@
                 { "include": "#lexicon-definition" },
                 { "include": "#lexicon-statement" },
                 { "include": "#lexicon-keyword" },
-		{ "include": "#flag" }
+		        { "include": "#flag" }
             ]
         },
 
@@ -87,14 +90,64 @@
             "name": "keyword.control.plus-sign.lexc"
         },
 
-        "symbol-text": {
+        "percent-sign": {
+            "match": "%",
+            "name": "keyword.other.percent-sign.lexc"
+        },
+
+        "angle-brackets": {
+            "match": "(<|>)",
+            "name": "keyword.other.angle-brackets.lexc"
+        },
+
+        "regex-inner": {
             "match": ".*",
-            "name": "constant.other.multichar-symbol.lexc"
+            "name": "string.regexp.lexc"
+        },
+
+        "regex": {
+            "match": "(<)([^<>]+)(>)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#angle-brackets" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-inner" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#angle-brackets" }
+                    ]
+                }
+            }
+        },
+
+        "symbol-text": {
+            "match": "(%)?([^%]+)(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#percent-sign" }
+                    ]
+                },
+                "2": {
+                    "name": "constant.other.multichar-symbol.lexc"
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#symbol-text" }
+                    ]
+                }
+            }
         },
 
         "symbol-left": {
             "description": "+TEXT",
-            "match": "(\\+)([^@0\\+]+)",
+            "match": "(\\+)([^@\\+]+)",
             "captures": {
                 "1": {
                     "patterns": [
@@ -111,7 +164,7 @@
 
         "symbol-right": {
             "description": "TEXT+",
-            "match": "([^@0\\+]+)(\\+)",
+            "match": "([^@\\+]+)(\\+)",
             "captures": {
                 "1": {
                     "patterns": [
@@ -204,23 +257,50 @@
 
         "string-literal": {
             "description": "Matches any text passed to it and treats it as a string.",
-            "match": ".*",
-            "name": "string.unquoted.lexc"
+            "match": "(%)?([^%]+)(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#percent-sign" }
+                    ]
+                },
+                "2": {
+                    "name": "string.unquoted.lexc"
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#string-literal" }
+                    ]
+                }
+            }
         },
 
-        "placeholder-character": {
-            "description": "Placeholder character for a space that replaces this character at runtime. I believe this is idiomatic.",
-            "match": "_",
-            "name": "entity.other.placeholder-character.lexc"
+        "application-lhs-recursion": {
+            "description": "Recursively matches against flags and strings.",
+            "match": "(@\\S+@|[^@]+)(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#flag" },
+                        { "include": "#regex" },
+                        { "include": "#string-literal" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#application-lhs-recursion" }
+                    ]
+                }
+            }
         },
 
         "application-expression": {
             "description": "This is applying a word to a lexicon, i.e. doggy Plurality;",
-            "match": "([^:]+)\\s(\\S+)\\s*;",
+            "match": "([^:]+)\\s+(\\S+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#string-literal" }
+                        { "include": "#application-lhs-recursion" }
                     ]
                 },
                 "2": {
@@ -244,7 +324,7 @@
         },
 
         "beginning-of-word": {
-            "description": "Beginnig of word marker.",
+            "description": "Beginning of word marker.",
             "match": "\\^",
             "name": "constant.language.beginning-of-word.lexc"
         },
@@ -255,39 +335,18 @@
             "name": "keyword.control.transduction-operator.lexc"
         },
 
-        "term-with-placeholder": {
-            "description": "Captures: _TEXT, TEXT_, _TEXT_, TEXT",
-            "match": "(_)?([^@\\+_]+)(_)?",
-            "captures": {
-                "1": {
-                    "patterns": [
-                        { "include": "#placeholder-character" }
-                    ]
-                },
-                "2": {
-                    "patterns": [
-                        { "include": "#string-literal" }
-                    ]
-                },
-                "3": {
-                    "patterns": [
-                        { "include": "#placeholder-character" }
-                    ]
-                }
-            }
-        },
-
         "transduction-term": {
-            "description": "Captures the following forms: +TEXT, TEXT+, @TEXT@, _TEXT, TEXT_, _TEXT_, TEXT",
-            "match": "(\\+[^@\\+]+|[^@\\+]+\\+|@\\S+@|_?[^@\\+]+_?)(.*)",
+            "description": "Captures the following forms: TEXT, @TEXT@, +TEXT, TEXT+.",
+            "match": "\\s*([^@\\s]+|@\\S+@)(.*)",
             "captures": {
                 "1": {
                     "patterns": [
                         { "include": "#epsilon" },
                         { "include": "#beginning-of-word" },
+                        { "include": "#regex" },
                         { "include": "#flag" },
                         { "include": "#symbol" },
-                        { "include": "#term-with-placeholder" }
+                        { "include": "#string-literal" }
                     ]
                 },
                 "2": {
@@ -300,7 +359,7 @@
 
         "transduction-expression": {
             "description": "An example transduction expression is: CONJ+@P.Question.ON@@R.Negation.ON@:ina_ Subject;",
-            "match": "([^:]+)(:)(\\S+)\\s+(\\S+)\\s*;",
+            "match": "([^:]+)(:)\\s*(\\S+)?\\s+(\\S+)\\s*(\\\"[^\\\"]+\\\")?\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -321,6 +380,11 @@
                     "patterns": [
                         { "include": "#lexicon-name" },
                         { "include": "#end-of-word"}
+                    ]
+                },
+                "5": {
+                    "patterns": [
+                        { "include": "#string-literal" }
                     ]
                 }
             }

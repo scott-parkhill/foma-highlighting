@@ -1,0 +1,254 @@
+{
+    "scopeName": "source.foma",
+    "patterns": [
+        { "include": "#expression" }
+    ],
+    "repository": {
+        "expression": {
+            "patterns": [
+                { "include": "#comment-expression" },
+                { "include": "#regex-definition-expression" },
+                { "include": "#keyword-expression" }
+            ]
+        },
+
+        "comment-expression": {
+            "match": "\\s*#.*",
+            "name": "comment.line.pound-sign.foma"
+        },
+
+        "string-literal": {
+            "match": ".*",
+            "name": "string.unquoted.foma"
+        },
+
+        "keyword": {
+            "match": ".*",
+            "name": "keyword.other.foma"
+        },
+
+        "sub-keyword": {
+            "match": ".*",
+            "name": "keyword.sub-keyword.foma"
+        },
+
+        "read-regex-expression": {
+            "match": "(read) (regex) (.*)\\s*;",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#sub-keyword" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#regex-composition-expression" }
+                    ]
+                }
+            }
+        },
+
+        "definition-expression": {
+            "match": "(define) (\\w+)\\s*;",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#name-definition" }
+                    ]
+                }
+            }
+        },
+
+        "general-keyword-expression": {
+            "match": "(\\S+) (\\S+) (.*)\\s*;?",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#sub-keyword" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#string-literal" }
+                    ]
+                }
+            }
+        },
+
+        "keyword-expression": {
+            "patterns": [
+                { "include": "#definition-expression" },
+                { "include": "#read-regex-expression" },
+                { "include": "#general-keyword-expression" }
+            ]
+        },
+
+        "name-definition": {
+            "match": ".*",
+            "name": "entity.name.type.foma"
+        },
+
+        "regex-operators": {
+            "description": "Matches ||, _, .#., ?, ->, |",
+            "match": "\\|\\||_|\\.#\\.|\\?|->|\\|",
+            "name": "keyword.control.regex-operators.foma"
+        },
+
+        "regex-multichar-symbols": {
+            "description": "Matches expressions such as {hello}.",
+            "match": "(\\{)([^\\}]+)(\\})",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#multichar_symbol_delimiter" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-text" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#multichar_symbol_delimiter" }
+                    ]
+                }
+            }
+        },
+
+        "multichar_symbol_delimiter": {
+            "match": ".*",
+            "name": "keyword.control.curly-brace.foma"
+        },
+
+        "regex-text-no-operator": {
+            "match": ".*",
+            "name": "string.regexp.text.foma"
+        },
+
+        "regex-text": {
+            "match": "(.)(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#regex-operators" },
+                        { "include": "#regex-text-no-operator" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-text" }
+                    ]
+                }
+            }
+        },
+
+        "regex-definition-expression": {
+            "match": "(define) (\\S+) ([^;]+);",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#keyword" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#name-definition" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#regex-expression" }
+                    ]
+                }
+            }
+        },
+
+        "regex-character-set": {
+            "match": "(\\[)([^\\]]+)(\\])",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#square-brackets" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-expression" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#square-brackets" }
+                    ]
+                }
+            }
+        },
+
+        "square-brackets": {
+            "match": ".*",
+            "name": "string.unquoted.square-brackets.foma"
+        },
+
+        "regex-expression": {
+            "match": "(\\[[^\\]]+\\]|[^\\[\\s]+)\\s?(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#regex-character-set" },
+                        { "include": "#regex-multichar-symbols" },
+                        { "include": "#regex-operators" },
+                        { "include": "#regex-text" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-expression" }
+                    ]
+                }
+            }
+        },
+
+        "regex-composition-expression": {
+            "match": "(\\w+)\\s*(.o.)?\\s*(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#name-definition" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-composition-operator" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#regex-composition-expression" }
+                    ]
+                }
+            }
+        },
+
+        "regex-composition-operator": {
+            "description": "Matches .o.",
+            "match": "\\.o\\.",
+            "name": "keyword.control.composition.foma"
+        }
+    }
+}

@@ -54,7 +54,7 @@
         },
 
         "definition-expression": {
-            "match": "(define) (\\w+)\\s*;",
+            "match": "(define|def) (\\w+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -159,7 +159,7 @@
         },
 
         "regex-definition-expression": {
-            "match": "(define) (\\S+) ([^;]+);",
+            "match": "(define|def) (\\S+) ([^;]+);",
             "captures": {
                 "1": {
                     "patterns": [

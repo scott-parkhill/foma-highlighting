@@ -13,7 +13,7 @@
         },
 
         "comment-expression": {
-            "match": "\\s*#.*",
+            "match": "\\s*(#|!)+.*",
             "name": "comment.line.pound-sign.foma"
         },
 

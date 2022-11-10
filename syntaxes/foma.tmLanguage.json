@@ -7,7 +7,7 @@
         "expression": {
             "patterns": [
                 { "include": "#comment-expression" },
-                { "include": "#regex-definition-expression" },
+                { "include": "#regex-clause-expressions" },
                 { "include": "#keyword-expression" }
             ]
         },
@@ -33,7 +33,7 @@
         },
 
         "read-regex-expression": {
-            "match": "(read) (regex) (.*)\\s*;",
+            "match": "(read )?(regex) (.*)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -47,6 +47,7 @@
                 },
                 "3": {
                     "patterns": [
+                        { "include": "#named-object" },
                         { "include": "#regex-composition-expression" }
                     ]
                 }
@@ -54,7 +55,7 @@
         },
 
         "definition-expression": {
-            "match": "(define|def) (\\w+)\\s*;",
+            "match": "(define|def)\\s+(\\w+)\\s*;",
             "captures": {
                 "1": {
                     "patterns": [
@@ -104,8 +105,8 @@
         },
 
         "regex-operators": {
-            "description": "Matches ||, _, .#., ?, ->, |",
-            "match": "\\|\\||_|\\.#\\.|\\?|->|\\|",
+            "description": "Matches ||, _, .#., ?, ->, |, \"",
+            "match": "\\|\\||_|\\.#\\.|\\?|->|\\||\\\"",
             "name": "keyword.control.regex-operators.foma"
         },
 
@@ -158,8 +159,41 @@
             }
         },
 
+        "regex-parallel-construction": {
+            "match": "([^,]+),,",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#regex-expression" }
+                    ]
+                }
+            }
+        },
+
+        "regex-parallel-construction-last-term": {
+            "match": "(.*->.*);",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#regex-expression" }
+                    ]
+                }
+            }
+        },
+
+        "regex-clause-expressions": {
+            "patterns": [
+                { "include": "#regex-definition-expression" },
+                { "include": "#regex-parallel-construction" },
+                { "include": "#regex-parallel-construction-last-term" },
+                { "include": "#regex-composition-left-continuation" },
+                { "include": "#regex-composition-right-continuation" },
+                { "include": "#regex-composition-right-continuation-finish-term" }
+            ]
+        },
+
         "regex-definition-expression": {
-            "match": "(define|def) (\\S+) ([^;]+);",
+            "match": "(define|def)\\s+(\\S+)\\s+([^;,]+)(;|,,|(?<=.o.))",
             "captures": {
                 "1": {
                     "patterns": [
@@ -173,6 +207,8 @@
                 },
                 "3": {
                     "patterns": [
+                        { "include": "#regex-composition-expression" },
+                        { "include": "#regex-composition-right-continuation" },
                         { "include": "#regex-expression" }
                     ]
                 }
@@ -224,12 +260,60 @@
             }
         },
 
-        "regex-composition-expression": {
-            "match": "(\\w+)\\s*(.o.)?\\s*(.*)",
+        "regex-composition-left-continuation": {
+            "match": "\\s*(.o.)\\s+([^;\\s]+)(.*)",
             "captures": {
                 "1": {
                     "patterns": [
-                        { "include": "#name-definition" }
+                        { "include": "#regex-composition-operator" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#named-object" }
+                    ]
+                },
+                "3": {
+                    "patterns": [
+                        { "include": "#regex-composition-left-continuation" }
+                    ]
+                }
+            }
+        },
+
+        "regex-composition-right-continuation": {
+            "match": "\\s*(\\w+)\\s+(.o.)\\s*",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#named-object" }
+                    ]
+                },
+                "2": {
+                    "patterns": [
+                        { "include": "#regex-composition-operator" }
+                    ]
+                }
+            }
+        },
+
+        "regex-composition-right-continuation-finish-term": {
+            "match": "\\s*(\\w+)\\s*;",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#named-object" }
+                    ]
+                }
+            }
+        },
+
+        "regex-composition-expression": {
+            "match": "(\\w{2,})\\s*(.o.)?\\s*(.*)",
+            "captures": {
+                "1": {
+                    "patterns": [
+                        { "include": "#named-object" }
                     ]
                 },
                 "2": {
@@ -243,6 +327,11 @@
                     ]
                 }
             }
+        },
+
+        "named-object": {
+            "match": ".*",
+            "name": "variable.other.foma.defined-machine"
         },
 
         "regex-composition-operator": {
